@@ -1,45 +1,44 @@
 ---
 # yaml-language-server: $schema=https://schema.blue-build.org/recipe-v1.json
-# image will be published to ghcr.io/<user>/<name>
-name: template
-# description will be included in the image's metadata
-description: This is my personal OS image.
+# Hubelia managed client image (Aurora-based). Publishes to
+# ghcr.io/<repo-owner>/hub-client-image
+name: hub-client-image
+description: Hubelia managed client (Aurora DX base)
+base-image: ghcr.io/ublue-os/aurora-dx
+image-version: stable
 
-# the base image to build on top of (FROM) and the version tag to use
-base-image: ghcr.io/ublue-os/silverblue-main
-image-version: 42 # latest is also supported if you want new updates ASAP
-
-# module configuration, executed in order
-# you can include multiple instances of the same module
 modules:
+  # System packages layered onto the base (not shipped in stock Aurora)
+  - type: rpm-ostree
+    install:
+      - syncthing        # file sync to the VPS
+      - kio-extras       # enables sftp:// browsing in Dolphin
+
+  # Default apps, installed system-wide (available to every account, admin-managed)
+  - type: default-flatpaks
+    configurations:
+      - scope: system
+        install:
+          - dev.zed.Zed
+          - us.zoom.Zoom
+          - com.slack.Slack
+          - org.signal.Signal
+          - com.obsproject.Studio
+          # Teams has no native Linux client — use the Teams PWA
+          # (teams.microsoft.com -> Install as app), or add
+          # com.github.IsmaelMartinez.teams_for_linux for a standalone wrapper.
+
+  # Copy the baked-in config files (everything under files/system -> /)
   - type: files
     files:
       - source: system
-        destination: / # copies files/system/* (* means everything inside it) into your image's root folder /
+        destination: /
 
-  - type: dnf
-    repos:
-      copr:
-        - atim/starship
-    install:
-      packages:
-        - micro
-        - starship
-    remove:
-      packages:
-        # example: removing firefox (in favor of the flatpak)
-        # "firefox" is the main package, "firefox-langpacks" is a dependency
-        - firefox
-        - firefox-langpacks # also remove firefox dependency (not required for all packages, this is a special case)
+  # Enable the Tailscale daemon at boot (auth 'tailscale up' is a first-login step)
+  - type: systemd
+    system:
+      enabled:
+        - tailscaled.service
 
-  - type: default-flatpaks
-    configurations:
-      - notify: true # Send notification after install/uninstall is finished (true/false)
-        scope: system
-        # If no repo information is specified, Flathub will be used by default
-        install: # system flatpaks we want all users to have and not remove
-          - org.mozilla.firefox
-          - org.gnome.Loupe
-      - scope: user # Also add Flathub user repo, but no user packages
-
-  - type: signing # this sets up the proper policy & signing files for signed images to work fully
+  # Set up image signature verification (uses your cosign.pub)
+  - type: signing

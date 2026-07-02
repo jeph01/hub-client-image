@@ -1,0 +1,8 @@
+// Non-admin (non-wheel) users must enter an admin password to
+// install or uninstall Flatpak applications.
+polkit.addRule(function(action, subject) {
+  if (action.id.indexOf("org.freedesktop.Flatpak.") === 0 &&
+      !subject.isInGroup("wheel")) {
+    return polkit.Result.AUTH_ADMIN;
+  }
+});
