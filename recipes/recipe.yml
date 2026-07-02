@@ -34,6 +34,15 @@ modules:
       - source: system
         destination: /
 
+  # Post-copy fixups (run after the files module):
+  #  - create the ~/work subfolders in /etc/skel so every new user gets
+  #    Desktop/Downloads/Documents/... that resolve immediately and sync to the VPS
+  #  - tighten the skel .ssh permissions (the files module resets them to 755/644)
+  - type: script
+    snippets:
+      - "mkdir -p /etc/skel/work/Desktop /etc/skel/work/Downloads /etc/skel/work/Documents /etc/skel/work/Music /etc/skel/work/Pictures /etc/skel/work/Videos /etc/skel/work/Templates /etc/skel/work/Public"
+      - "chmod 700 /etc/skel/.ssh && chmod 600 /etc/skel/.ssh/config"
+
   # Enable the Tailscale daemon at boot (auth 'tailscale up' is a first-login step)
   - type: systemd
     system:

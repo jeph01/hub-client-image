@@ -53,6 +53,15 @@ modules:
       - source: system
         destination: /
 
+  # Post-copy fixups (run after the files module):
+  #  - create the ~/work subfolders in /etc/skel so every new user gets
+  #    Desktop/Downloads/Documents/... that resolve immediately and sync to the VPS
+  #  - tighten the skel .ssh permissions (the files module resets them to 755/644)
+  - type: script
+    snippets:
+      - "mkdir -p /etc/skel/work/Desktop /etc/skel/work/Downloads /etc/skel/work/Documents /etc/skel/work/Music /etc/skel/work/Pictures /etc/skel/work/Videos /etc/skel/work/Templates /etc/skel/work/Public"
+      - "chmod 700 /etc/skel/.ssh && chmod 600 /etc/skel/.ssh/config"
+
   # Enable the Tailscale daemon at boot (auth 'tailscale up' is a first-login step)
   - type: systemd
     system:
@@ -89,14 +98,14 @@ EOF
 
 echo "==> Writing XDG user-dirs (all user folders -> ~/work, the synced folder)"
 cat > files/system/etc/skel/.config/user-dirs.dirs <<'EOF'
-XDG_DESKTOP_DIR="$HOME/work"
-XDG_DOWNLOAD_DIR="$HOME/work"
-XDG_DOCUMENTS_DIR="$HOME/work"
-XDG_MUSIC_DIR="$HOME/work"
-XDG_PICTURES_DIR="$HOME/work"
-XDG_VIDEOS_DIR="$HOME/work"
-XDG_TEMPLATES_DIR="$HOME/work"
-XDG_PUBLICSHARE_DIR="$HOME/work"
+XDG_DESKTOP_DIR="$HOME/work/Desktop"
+XDG_DOWNLOAD_DIR="$HOME/work/Downloads"
+XDG_DOCUMENTS_DIR="$HOME/work/Documents"
+XDG_MUSIC_DIR="$HOME/work/Music"
+XDG_PICTURES_DIR="$HOME/work/Pictures"
+XDG_VIDEOS_DIR="$HOME/work/Videos"
+XDG_TEMPLATES_DIR="$HOME/work/Templates"
+XDG_PUBLICSHARE_DIR="$HOME/work/Public"
 EOF
 
 echo "==> Writing SSH config skeleton (User omitted -> defaults to local username = VPS username)"
