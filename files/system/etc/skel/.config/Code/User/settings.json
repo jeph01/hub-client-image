@@ -1,0 +1,6 @@
+{
+  "window.restoreWindows": "all",
+  "remote.SSH.remotePlatform": {
+    "hub-mtl-01": "linux"
+  }
+}

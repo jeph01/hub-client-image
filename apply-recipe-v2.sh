@@ -1,3 +1,15 @@
+#!/usr/bin/env bash
+#
+# apply-recipe-v2.sh — updates the recipe with the expanded app list and the
+# VS Code Remote-SSH "hard nudge". Run ONCE from inside the cloned repo:
+#     cd hub-client-image
+#     bash apply-recipe-v2.sh
+# Then run the Bazaar check (see end), add the removal line, commit, push.
+#
+set -euo pipefail
+
+echo "==> Overwriting recipes/recipe.yml"
+cat > recipes/recipe.yml <<'EOF'
 ---
 # yaml-language-server: $schema=https://schema.blue-build.org/recipe-v1.json
 # Hubelia managed client image (Aurora-based). Publishes to
@@ -15,8 +27,8 @@ modules:
       - kio-extras       # enables sftp:// browsing in Dolphin
     # --- BAZAAR REMOVAL (if it's an rpm) ---
     # If  rpm -qa | grep -i bazaar  returns a package, uncomment and set the name:
-    remove:
-      - bazaar
+    # remove:
+    #   - bazaar
 
   # Default apps, installed system-wide (available to every account, admin-managed)
   - type: default-flatpaks
@@ -50,8 +62,8 @@ modules:
           - org.videolan.VLC
       # --- BAZAAR REMOVAL (if it's a flatpak) ---
       # If  flatpak list | grep -i bazaar  returns it, uncomment:
-        remove:
-          - io.github.kolunmi.Bazaar
+      #   remove:
+      #     - io.github.kolunmi.Bazaar
 
   # Copy the baked-in config files (everything under files/system -> /)
   - type: files
@@ -78,3 +90,44 @@ modules:
 
   # Set up image signature verification (uses your cosign.pub)
   - type: signing
+EOF
+
+echo "==> Writing VS Code launcher override (opens connected to the VPS)"
+mkdir -p files/system/etc/skel/.local/share/applications
+cat > files/system/etc/skel/.local/share/applications/code.desktop <<'EOF'
+[Desktop Entry]
+Name=Visual Studio Code
+Comment=Opens VS Code connected to the Hubelia VPS (hub-mtl-01)
+GenericName=Text Editor
+Exec=/usr/bin/code --remote ssh-remote+hub-mtl-01
+Icon=vscode
+Type=Application
+StartupNotify=false
+StartupWMClass=Code
+Categories=TextEditor;Development;IDE;
+Keywords=vscode;code;
+EOF
+
+echo "==> Writing VS Code default settings (restore remote window, skip platform prompt)"
+mkdir -p files/system/etc/skel/.config/Code/User
+cat > files/system/etc/skel/.config/Code/User/settings.json <<'EOF'
+{
+  "window.restoreWindows": "all",
+  "remote.SSH.remotePlatform": {
+    "hub-mtl-01": "linux"
+  }
+}
+EOF
+
+echo
+echo "==> Done. Changed/created:"
+echo "    recipes/recipe.yml   (new app list + VS Code extension bake in script module)"
+echo "    files/system/etc/skel/.local/share/applications/code.desktop  (VPS launcher)"
+echo "    files/system/etc/skel/.config/Code/User/settings.json"
+echo
+echo "NEXT — Bazaar removal check:"
+echo "    rpm -qa | grep -i bazaar        # if it prints a package -> rpm removal"
+echo "    flatpak list | grep -i bazaar   # if it prints an app     -> flatpak removal"
+echo "  Then uncomment the matching 'remove:' block in recipes/recipe.yml."
+echo
+echo "Then: git add -A && git commit -m 'v2: apps + VS Code VPS nudge + Bazaar removal' && git push"

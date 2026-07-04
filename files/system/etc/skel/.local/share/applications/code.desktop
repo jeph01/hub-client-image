@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Visual Studio Code
+Comment=Opens VS Code connected to the Hubelia VPS (hub-mtl-01)
+GenericName=Text Editor
+Exec=/usr/bin/code --remote ssh-remote+hub-mtl-01
+Icon=vscode
+Type=Application
+StartupNotify=false
+StartupWMClass=Code
+Categories=TextEditor;Development;IDE;
+Keywords=vscode;code;
