@@ -39,6 +39,7 @@ modules:
           - com.google.Chrome
           # Mail / office / notes / diagrams
           - org.mozilla.Thunderbird
+          - ch.protonmail.protonmail-bridge
           - org.onlyoffice.desktopeditors
           - md.obsidian.Obsidian
           - com.jgraph.drawio.desktop
