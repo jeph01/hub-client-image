@@ -71,6 +71,9 @@ modules:
     system:
       enabled:
         - tailscaled.service
+    user:
+      enabled:
+        - syncthing.service
 
   # Set up image signature verification (uses your cosign.pub)
   - type: signing
