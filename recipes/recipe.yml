@@ -15,8 +15,6 @@ modules:
       - kio-extras       # enables sftp:// browsing in Dolphin
     # --- BAZAAR REMOVAL (if it's an rpm) ---
     # If  rpm -qa | grep -i bazaar  returns a package, uncomment and set the name:
-    remove:
-      - krunner-bazaar
 
   # Default apps, installed system-wide (available to every account, admin-managed)
   - type: default-flatpaks
@@ -49,10 +47,6 @@ modules:
           - com.obsproject.Studio
           - org.flameshot.Flameshot
           - org.videolan.VLC
-      # --- BAZAAR REMOVAL (if it's a flatpak) ---
-      # If  flatpak list | grep -i bazaar  returns it, uncomment:
-        remove:
-          - io.github.kolunmi.Bazaar
 
   # Copy the baked-in config files (everything under files/system -> /)
   - type: files
