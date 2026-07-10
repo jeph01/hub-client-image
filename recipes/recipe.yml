@@ -8,11 +8,12 @@ base-image: ghcr.io/ublue-os/aurora-dx
 image-version: stable
 
 modules:
-  # System packages layered onto the base (not shipped in stock Aurora)
-  - type: rpm-ostree
+  # System packages layered onto the base (dnf5 module — rpm-ostree module is deprecated on bootc/Aurora)
+  - type: dnf
     install:
-      - syncthing        # file sync to the VPS
-      - kio-extras       # enables sftp:// browsing in Dolphin
+      packages:
+        - syncthing        # file sync to the VPS
+        - kio-extras       # enables sftp:// browsing in Dolphin
     # --- BAZAAR REMOVAL (if it's an rpm) ---
     # If  rpm -qa | grep -i bazaar  returns a package, uncomment and set the name:
 
