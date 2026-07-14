@@ -14,6 +14,7 @@ modules:
       packages:
         - syncthing        # file sync to the VPS
         - kio-extras       # enables sftp:// browsing in Dolphin
+        - tmux
     # --- BAZAAR REMOVAL (if it's an rpm) ---
     # If  rpm -qa | grep -i bazaar  returns a package, uncomment and set the name:
 
